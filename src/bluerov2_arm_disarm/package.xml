@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>bluerov2_bluecv</name>
+  <name>bluerov2_arm_disarm</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="zguo011235@gmail.com">zguo27</maintainer>
+  <maintainer email="zguo011235@gmail.com">zoeguo</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
@@ -13,9 +13,11 @@
   <test_depend>python3-pytest</test_depend>
 
   <depend>rclpy</depend>
-  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
-  <depend>cv_bridge</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>       <!-- for Odometry -->
+  <depend>mavros_msgs</depend>
 
   <export>
     <build_type>ament_python</build_type>

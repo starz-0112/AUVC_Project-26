@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'bluerov2_node'
+package_name = 'bluerov2_arm_disarm'
 
 setup(
     name=package_name,
@@ -13,20 +13,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='blue',
-    maintainer_email='ayan.k.ahmaad01@gmail.com',
+    maintainer='zoeguo',
+    maintainer_email='zguo011235@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'arm_disarm = bluerov2_node.ArmDisarm:main',
-            'convert_to_depth = bluerov2_node.PressureToDepth:main',
-            'lane_detection = bluerov2_node.LaneDetection:main',
-            'camera_interface = rosmav.bluerov2_camera_interface:main',
-            
+            'arm_disarm = bluerov2_arm_disarm.arm_disarm:main',
         ],
     },
 )
-
-

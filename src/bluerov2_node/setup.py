@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'bluerov2_controllers'
+package_name = 'bluerov2_node'
 
 setup(
     name=package_name,
@@ -13,18 +13,18 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='blue',
-    maintainer_email='ayan.k.ahmaad01@gmail.com',
+    maintainer='zoeguo',
+    maintainer_email='zguo011235@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'pid_depth = bluerov2_controllers.PID_depth:main',
-            'pid_heading = bluerov2_controllers.PID_heading:main',
-            'pid_controller = bluerov2_controllers.PIDController:main',
-            'pid_lane = bluerov2_controllers.PID_lane_following:main',
-            'depth_publisher = bluerov2_node.DepthPublisher:main',
+            'arm_disarm = bluerov2_node.ArmDisarm:main',
+            'convert_to_depth = bluerov2_node.PressureToDepth:main',
+            
         ],
     },
 )
+
+

@@ -4,7 +4,7 @@
   <name>bluerov2_controllers</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="ayan.k.ahmaad01@gmail.com">blue</maintainer>
+  <maintainer email="zguo011235@gmail.com">zoeguo</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
