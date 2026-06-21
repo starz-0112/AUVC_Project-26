@@ -1,3 +1,9 @@
+import os
+virtualenv_name = "bluecv"
+home_path = os.path.expanduser("~")
+executable_path = os.path.join(home_path, 'venvs', virtualenv_name, 'bin', 'python')
+#executable_path = os.path.join(home_path, '.virtualenvs', virtualenv_name, 'bin', 'python')
+
 from setuptools import find_packages, setup
 
 package_name = 'bluerov2_testers'
@@ -20,7 +26,18 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'heading_lock = bluerov2_testers.HeadingLock:main',
+            'basic_cv = bluerov2_testers.BasicStrategyCV:main',
+            'basic_tag = bluerov2_testers.BasicStrategyTag:main',
+            'basic_tag_no_tilt = bluerov2_testers.BasicStrategyTagNoTilt:main',
+            'basic_FSM = bluerov2_testers.BasicStrategyFSM:main',
+            'master = bluerov2_testers.Masterpiece:main',
+            'basic_wall = bluerov2_testers.BasicStrategyWall:main',
+            'testing_wall = bluerov2_testers.testing_wall:main',
         ],
+    },
+    options={
+        'build_scripts': {
+            'executable': executable_path,
+        }
     },
 )
