@@ -28,7 +28,8 @@ setup(
     entry_points={
         'console_scripts': [
             'april_tag = bluerov2_detection.ReadAprilTags:main',
-            'tag_follow = bluerov2_detection.TagFollower:main'
+            'tag_follow = bluerov2_detection.TagFollower:main',
+            'depth = bluerov2_detection.PressureToDepth:main'
         ],
     },
     options={
