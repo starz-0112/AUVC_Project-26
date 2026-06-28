@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'arm_disarm = bluerov2_arm_disarm.arm_disarm:main',
+            'arm_disarm = bluerov2_arm_disarm.ArmDisarm:main',
         ],
     },
 )
