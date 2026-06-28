@@ -25,7 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             'lights = bluerov2_behavior.FlashyLights:main',
-            'movement = bluerov2_behavior.MainMovement:main'
+            'movement = bluerov2_behavior.MainMovement:main',
+            'manual_control = bluerov2_behavior.ManualNext:main'
         ],
     },
 )

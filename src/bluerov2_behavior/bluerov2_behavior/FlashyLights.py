@@ -4,6 +4,7 @@ from rclpy.node import Node
 from mavros_msgs.msg import OverrideRCIn
 from std_msgs.msg import Float64MultiArray
 from geometry_msgs.msg import Polygon, Point32
+from std_msgs.msg import Bool
 
 class FlashLights(Node):
     def __init__(self):
@@ -49,6 +50,15 @@ class FlashLights(Node):
             10
         )
 
+        # Subscribes to skip method
+        self.create_subscription(
+            Bool,
+            "/manual_next",
+            self.manual_next_callback,
+            10
+        )
+
+
         # Publish the current target coordinate
         self.target_pub = self.create_publisher(Point32, "/current_target", 10)
 
@@ -71,6 +81,15 @@ class FlashLights(Node):
         msg = Point32(x=float(x), y=float(y), z=float(z))
         self.target_pub.publish(msg)
         self.get_logger().info(f"Published current target: {msg}")
+
+    def manual_next_callback(self, msg):
+        if msg.data:
+            if self.route:
+                popped = self.route.pop(0)
+                self.get_logger().info(f"MANUAL ADVANCE → Skipped {popped}")
+                self.publish_current_target()
+            else:
+                self.get_logger().warn("No more points to advance to")
 
     
     def now(self):
