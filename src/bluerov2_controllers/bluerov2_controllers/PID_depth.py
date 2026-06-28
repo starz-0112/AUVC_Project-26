@@ -45,9 +45,8 @@ class DepthPIDController(Node):
         self.get_logger().info("Depth PID controller initialized")
 
     def setpoint_callback(self, msg: Float64):
-        """Receive desired depth in feet → convert to meters and update PID."""
+        """Receive desired depth in meters for PID."""
         meters = msg.data
-        feet = meters * 3.28084
         self.pid.setpoint = meters
         self.get_logger().info(f"New setpoint: {feet:.2f} ft → {meters:.2f} m")
 
