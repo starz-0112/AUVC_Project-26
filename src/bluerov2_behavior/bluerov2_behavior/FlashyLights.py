@@ -1,3 +1,5 @@
+#NOT JUST LIGHTS!!! - stores route, waypoint progression, AprilTag triggers, mission timer, final kill signal
+
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
@@ -15,11 +17,13 @@ class FlashLights(Node):
         self.declare_parameter("flash_off_duration",   1.0)  # seconds OFF
         self.declare_parameter("detection_timeout",    1.0)  # seconds before we drop flash
         self.declare_parameter("distance_threshold",   0.5)  # meters
+        self.declare_parameter("max_flashes", 3)
 
         self.flash_on_duration   = self.get_parameter("flash_on_duration").value
         self.flash_off_duration  = self.get_parameter("flash_off_duration").value
         self.detection_timeout   = self.get_parameter("detection_timeout").value
         self.distance_threshold  = self.get_parameter("distance_threshold").value
+        self.max_flashes = self.get_parameter("max_flashes").value
 
         # pub /sub
         self.command_pub = self.create_publisher(OverrideRCIn, "override_rc", 10)
@@ -28,39 +32,44 @@ class FlashLights(Node):
             self.april_tag_callback, 10
         )
 
-        # state
-        self.should_flash = False
-        self.light_on     = False
-        self.last_toggle  = self.now()
-        self.last_det_t   = None
-
-        # high-rate timer
-        self.timer = self.create_timer(0.1, self._on_timer)
-        self.get_logger().info("FlashLights ready")
-
-        #NEW STUFF ADDED
-        # Store the route from Held–Karp
-        self.route = []
-        
         # Subscribe to the optimized route
         self.create_subscription(
             Polygon,
             "/visit_order",
-            self.route_callback,
-            10
+            self.route_callback, 10
         )
 
         # Subscribes to skip method
         self.create_subscription(
             Bool,
             "/manual_next",
-            self.manual_next_callback,
-            10
+            self.manual_next_callback, 10
         )
 
-
-        # Publish the current target coordinate
         self.target_pub = self.create_publisher(Point32, "/current_target", 10)
+
+        # state
+        self.should_flash = False
+        self.light_on     = False
+        self.last_toggle  = self.now()
+        self.last_det_t   = None
+
+        # Store the route from Held–Karp
+        self.route = []
+        self.flash_count = 0
+
+        # high-rate timer
+        self.timer = self.create_timer(0.1, self._on_timer)
+        self.get_logger().info("FlashLights ready")
+
+        #MISSION TIMERS HERE
+        # Mission timing
+        self.mission_started = False
+        self.mission_start_time = None
+
+        # Publishers for kill + mission time
+        self.end_pub = self.create_publisher(Bool, "/mission_end", 10)
+        self.time_pub = self.create_publisher(Float64, "/mission_time", 10)
 
 
     def route_callback(self, msg: Polygon):
@@ -71,12 +80,36 @@ class FlashLights(Node):
         # Immediately publish the first target
         if self.route:
             self.publish_current_target()
+        
+        # Mission Timer
+        if not self.mission_started:
+            self.mission_started = True
+            self.mission_start_time = self.now()
+            self.get_logger().info("Mission timer started")
+
 
     def publish_current_target(self):
+        # If route empty, then mission complete
         if not self.route:
-            self.get_logger().warn("Route empty — no target to publish")
+            self.get_logger().info("Mission complete — returned to start")
+            
+            if self.mission_started:
+                total = self.now() - self.mission_start_time
+                self.get_logger().info(f"Total mission time {total: .3f} seconds")
+
+                # Kill signal
+                end_msg = Bool()
+                end_msg.data = False
+                self.end_pub.publish(end_msg)
+
+                # Publishes mission time
+                tmsg = Float64()
+                tmsg.data = float(total)
+                self.time_pub.publish(tmsg)
+            
             return
 
+        # Else, publish next target
         x, y, z = self.route[0]
         msg = Point32(x=float(x), y=float(y), z=float(z))
         self.target_pub.publish(msg)
@@ -112,6 +145,20 @@ class FlashLights(Node):
                 popped = self.route.pop(0)
                 self.get_logger().info(f"Reached {popped}, moving to next point")
                 self.publish_current_target()
+            else:
+                # Mission complete
+                total = self.now() - self.mission_start_time
+                self.get_logger().info(f"MISSION COMPLETE — total time: {total:.2f} seconds")
+
+                # Kill signal
+                end_msg = Bool()
+                end_msg.data = False
+                self.end_pub.publish(end_msg)
+
+                # Publish mission time
+                tmsg = Float64()
+                tmsg.data = float(total)
+                self.time_pub.publish(tmsg)
 
         else:
             # immediate stop if tag is too far

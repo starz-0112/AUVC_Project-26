@@ -48,7 +48,7 @@ class PathNode(Node):
     self.get_logger().info(f"Published coordinate order with {len(msg.points)} points")
 
     #Held-Karp Algorithm
-    def held_karp(self, start, visit_pointspoints):
+    def held_karp(self, start, visit_points):
         total_pts = [start] + visit_points
         n = len(total_pts)
 
@@ -57,7 +57,7 @@ class PathNode(Node):
 
         @lru_cache(None)
         def dp(mask, last):
-            if mask == (1 << last)):
+            if mask == (1 << last):
                 return D[0][last], [last]
             
             best_cost = float('inf')
@@ -71,6 +71,7 @@ class PathNode(Node):
                     if new_cost < best_cost:
                         best_cost = new_cost
                         best_path = path + [last]
+                        
             return best_cost, best_path
 
         full_mask = (1 << n) - 1
@@ -79,12 +80,14 @@ class PathNode(Node):
 
         for last in range(1, n):
             cost, path = dp(full_mask, last)
+            cost += D[last][0] #returns to start (dock) position
             if cost < best_cost:
                 best_cost = cost
-                best_path = path
+                best_path = path + [0] #append start (dock)
 
         #Reconvert into coordinates
-        return [points[i-1] for i in best_path]
+        total_pts = [start] + visit_points
+        return [total_pts[i] for i in best_path]
 
 def main(args=None):
     rclpy.init(args=args)

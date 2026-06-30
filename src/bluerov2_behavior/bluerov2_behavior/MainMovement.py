@@ -92,8 +92,13 @@ class ROVMove(Node):
         msg.data = desired_heading
         self.pub_heading_setpoint.publish(msg)
 
-        #move forward
-        surge = self.forward_speed
+        #computes heading error
+        heading_error = self.angle_diff(desired_heading, self.yaw)
+        if abs(heading_error) <10:
+            surge = self.forward_speed
+        else:
+            surge = 0.0
+            
         self.publish_manual(surge, 0.0, 0.0)
 
     #other helpful attachments
