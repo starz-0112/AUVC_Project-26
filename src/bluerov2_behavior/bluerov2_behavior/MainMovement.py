@@ -32,8 +32,8 @@ class ROVMove(Node):
         self.current_target = None
         self.last_target = None
 
-        self.assumed_x = 0.0 #START, ADJUST LATER TO BE DOCK
-        self.assumed_y = 0.0
+        self.assumed_x = None #START, ADJUST LATER TO BE DOCK
+        self.assumed_y = None
 
         self.depth = None
         self.yaw = None
@@ -51,8 +51,14 @@ class ROVMove(Node):
     def target_cb(self, msg: Point32):
         new_target = (msg.x, msg.y, msg.z)
 
-        #If new target, then perceived position is updated
-        if self.last_target is not None:
+        # If this is the FIRST target ever received, assume robot is at that position
+        if self.last_target is None:
+            self.assumed_x = new_target[0]
+            self.assumed_y = new_target[1]
+            self.get_logger().info(f"Assuming robot starts at {new_target}")
+
+        else:
+            # Otherwise update assumed position normally
             self.assumed_x = self.last_target[0]
             self.assumed_y = self.last_target[1]
     
@@ -98,7 +104,7 @@ class ROVMove(Node):
             surge = self.forward_speed
         else:
             surge = 0.0
-            
+
         self.publish_manual(surge, 0.0, 0.0)
 
     #other helpful attachments
