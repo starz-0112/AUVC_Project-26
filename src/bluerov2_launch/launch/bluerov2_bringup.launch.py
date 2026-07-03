@@ -3,11 +3,15 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        Node(package='path_planning_pkg', executable='path_planning_node'),
-        Node(package='flash_lights_pkg', executable='flash_lights_node'),
-        Node(package='rov_move_pkg', executable='rov_move_node'),
-        Node(package='manual_next_pkg', executable='manual_next_node'),
-        Node(package='depth_pid_pkg', executable='depth_pid_node'),
-        Node(package='heading_pid_pkg', executable='heading_pid_node'),
-        Node(package='arm_disarm_pkg', executable='arm_disarm_node'),
+        Node(package='bluerov2_arm_disarm', executable='arm_disarm'),
+        Node(package='bluerov2_behavior', executable='lights'),
+        Node(package='bluerov2_behavior', executable='movement'),
+        Node(package='bluerov2_behavior', executable='manual_next'),
+        Node(package='bluerov2_controllers', executable='pid_depth'),
+        Node(package='bluerov2_controllers', executable='pid_heading'),
+        Node(package='bluerov2_controllers', executable='pid_controller'),
+        Node(package='bluerov2_controllers', executable='depth_publisher'),
+        Node(package='bluerov2_detection', executable='april_tag'),
+        Node(package='bluerov2_detection', executable='depth'),
+        Node(package='bluerov2_path_planning', executable='path_planning'),
     ])
