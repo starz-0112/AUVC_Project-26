@@ -26,7 +26,7 @@ class FlashLights(Node):
         self.max_flashes = self.get_parameter("max_flashes").value
 
         # pub /sub
-        self.command_pub = self.create_publisher(OverrideRCIn, "override_rc", 10)
+        self.command_pub = self.create_publisher(OverrideRCIn, "/mavros/rc/override", 10)
         self.create_subscription(
             Float64MultiArray, "apriltag/detection",
             self.april_tag_callback, 10

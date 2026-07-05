@@ -44,7 +44,7 @@ class AprilTagDetectorNode(Node):
         # publishes flat array [id, tx, ty, tz, ...]
         self.pub_detections = self.create_publisher(
             Float64MultiArray,
-            'apriltag/detections',
+            'apriltag/detection',
             10
         )
 
