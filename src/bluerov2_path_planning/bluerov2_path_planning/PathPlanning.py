@@ -95,40 +95,40 @@ class PathNode(Node):
         #Reconvert into coordinates
         return [total_pts[i] for i in best_path]
 
-def apply_time_constraints(self, route):
-    # This one only slots in stops regularly - it doesn't account global awareness stuffs
+    def apply_time_constraints(self, route):
+     # This one only slots in stops regularly - it doesn't account global awareness stuffs
 
-    if not route:
-        return []
+        if not route:
+            return []
 
-    battery_route = []
-    leg_time = 0.0
-    dock = route[0]
+        battery_route = []
+        leg_time = 0.0
+        dock = route[0]
 
-    for i in range(len(route) - 1):
-        p_curr = route[i]
-        p_next = route[i+1]
+        for i in range(len(route) - 1):
+            p_curr = route[i]
+            p_next = route[i+1]
 
-        dist = math.dist(p_curr, p_next)
-        seg_time = dist / SPEED_MPS
+            dist = math.dist(p_curr, p_next)
+            seg_time = dist / SPEED_MPS
 
-        if leg_time + seg_time > MAX_LEG_TIME
-            if battery_route and battery_route[-1] != dock:
-                battery_route.append(dock)
-                self.get_logger.info("Battery limit reached, heading to dock")
+            if leg_time + seg_time > MAX_LEG_TIME:
+                if battery_route and battery_route[-1] != dock:
+                    battery_route.append(dock)
+                    self.get_logger().info("Battery limit reached, heading to dock")
             
-            leg_time = math.dist(dock, p_next) / SPEED_MPS
+                leg_time = math.dist(dock, p_next) / SPEED_MPS
+                battery_route.append(dock)
+                battery_route.append(p_next)
+            else:
+                if not battery_route:
+                    battery_route.append(p_curr)
+                battery_route.append(p_next)
+                leg_time += seg_time
+        if battery_route[-1] != dock:
             battery_route.append(dock)
-            battery_route.append(p_next)
-        else:
-            if not battery_route:
-                battery_route.append(p_curr)
-            battery_route.append(p_next)
-            leg_time += seg_time
-    if battery_route[-1] != dock:
-        battery_route.append(dock)
 
-    return battery_route
+        return battery_route
 
 def main(args=None):
     rclpy.init(args=args)

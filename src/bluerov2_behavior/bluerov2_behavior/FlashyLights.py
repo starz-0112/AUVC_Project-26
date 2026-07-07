@@ -1,12 +1,11 @@
+#!/usr/bin/env python3
 #NOT JUST LIGHTS!!! - stores route, waypoint progression, AprilTag triggers, mission timer, final kill signal
 
-#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from mavros_msgs.msg import OverrideRCIn
-from std_msgs.msg import Float64MultiArray
 from geometry_msgs.msg import Polygon, Point32
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float64, Float64MultiArray
 
 class FlashLights(Node):
     def __init__(self):
