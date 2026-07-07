@@ -1,3 +1,5 @@
+#VERY MUCH ON HOLD - DO NOT, DO NOT TRY TO RUN! Package names are outdated, nodes outdated as well.
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 

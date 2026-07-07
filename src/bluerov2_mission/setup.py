@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'bluerov2_behavior'
+package_name = 'bluerov2_mission'
 
 setup(
     name=package_name,
@@ -24,9 +24,9 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'lights = bluerov2_behavior.FlashyLights:main',
-            'movement = bluerov2_behavior.MainMovement:main',
-            'manual_next = bluerov2_behavior.ManualNext:main'
+            'lights = bluerov2_mission.FlashyLights:main',
+            'movement = bluerov2_mission.MainMovement:main',
+            'manual_next = bluerov2_mission.ManualNext:main'
         ],
     },
 )
