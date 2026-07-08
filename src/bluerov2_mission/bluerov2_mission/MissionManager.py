@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 #NOT JUST LIGHTS!!! - stores route, waypoint progression, AprilTag triggers, mission timer, final kill signal
+#Clearly needs to be broken down... at the end of separation, should only act like the head (sub/pub) and do NO FUNCTIONS AT ALL!
+#FlashyLights -> MissionManager + LEDControl + MissionTimer + RouteManager
+
 
 import rclpy
 from rclpy.node import Node
