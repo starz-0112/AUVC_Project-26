@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'bluerov2_arm_disarm'
+package_name = 'bluerov2_hardware'
 
 setup(
     name=package_name,
@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'arm_disarm = bluerov2_arm_disarm.ArmDisarm:main',
+            'arm_disarm = bluerov2_hardware.ArmDisarm:main',
         ],
     },
 )
