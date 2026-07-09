@@ -1,7 +1,8 @@
 #Best case scenario: this computes shortest path & visit order for 5 pts using held karp algo :)
+#Note to implement later: each waypoint must also store the ID of the tag at that waypoint!
+
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int32MultiArray
 import math
 from functools import lru_cache
 from geometry_msgs.msg import Polygon, Point32
@@ -15,13 +16,13 @@ class PathNode(Node):
         self.get_logger().info("Path publishing node initialized.")
 
         #Given points here
-        start = (0.0, 0.0, 0.0)
+        dock = (0, 0.0, 0.0, 0.0)
         visit_points = [
-            (1.0, 2.0, 3.0),
-            (2.0, 3.0, 4.0),
-            (3.0, 4.0, 5.0),
-            (4.0, 5.0, 6.0),
-            (5.0, 6.0, 7.0)
+            (1, 1.0, 2.0, 3.0),
+            (2, 2.0, 3.0, 4.0),
+            (3, 3.0, 4.0, 5.0),
+            (4, 4.0, 5.0, 6.0),
+            (5, 5.0, 6.0, 7.0)
         ]
 
         #Publishes visit order of points
@@ -31,10 +32,10 @@ class PathNode(Node):
             10
         )
         
-        hk_route = self.held_karp(start, visit_points)
+        hk_route = self.held_karp(dock, visit_points)
         self.get_logger().info(f"Held-Karp: {hk_route}")
 
-        battery_route = self.apply_time_constraints(hk_route)
+        battery_route = self.apply_time_constraints(dock, hk_route)
         self.get_logger().info(f"Battery-aware route: {battery_route}")
 
         #Published output
@@ -44,8 +45,9 @@ class PathNode(Node):
     def publish_order(self, ordered_points):
         msg = Polygon()
 
-        for (x, y, z) in ordered_points:
+        for (a, x, y, z) in ordered_points:
             p = Point32()
+            p.id = a
             p.x = float(x)
             p.y = float(y)
             p.z = float(z)
@@ -55,11 +57,11 @@ class PathNode(Node):
         self.get_logger().info(f"Published coordinate order with {len(msg.points)} points")
 
     #Held-Karp Algorithm
-    def held_karp(self, start, visit_points):
-        total_pts = [start] + visit_points
+    def held_karp(self, dock, visit_points):
+        total_pts = [dock] + visit_points
         n = len(total_pts)
 
-        # Precompute distances
+        # Precompute distances - how does this account for the id of the tag at the front?
         D = [[math.dist(total_pts[i], total_pts[j]) for j in range(n)] for i in range(n)]
 
         @lru_cache(None)
@@ -95,7 +97,7 @@ class PathNode(Node):
         #Reconvert into coordinates
         return [total_pts[i] for i in best_path]
 
-    def apply_time_constraints(self, route):
+    def apply_time_constraints(self, dock, route):
      # This one only slots in stops regularly - it doesn't account global awareness stuffs
 
         if not route:
@@ -103,7 +105,6 @@ class PathNode(Node):
 
         battery_route = []
         leg_time = 0.0
-        dock = route[0]
 
         for i in range(len(route) - 1):
             p_curr = route[i]
@@ -117,7 +118,7 @@ class PathNode(Node):
                     battery_route.append(dock)
                     self.get_logger().info("Battery limit reached, heading to dock")
             
-                leg_time = math.dist(dock, p_next) / SPEED_MPS
+                leg_time = math.dist(dock[1:3], p_next[1:3]) / SPEED_MPS
                 battery_route.append(dock)
                 battery_route.append(p_next)
             else:
