@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-
 import rclpy
 from rclpy.node import Node
+from geometry_msgs.msg import Point32
 from mavros_msgs.msg import OverrideRCIn
 from std_msgs.msg import Float64MultiArray
+import math
 
 class FlashLights(Node):
     def __init__(self):
@@ -28,19 +29,49 @@ class FlashLights(Node):
             Float64MultiArray, "apriltag/detection",
             self.april_tag_callback, 10
         )
+        self.create_subscription(
+            Point32, "/current_target",
+            self.target_callback, 10
+        )
 
         # state
+        self.current_target_id = None
         self.should_flash = False
         self.light_on     = False
         self.last_toggle  = self.now()
         self.last_det_t   = None
 
+    def target_callback(self, msg: Point32):
+        """Updates the active tag ID we should care about."""
+        self.current_target_id = int(msg.id)
+    
     def april_tag_callback(self, msg: Float64MultiArray):
+        if self.current_target_id is None:
+            return
+        
+        target_in_range = False
+
+        for i in range(0, len(msg.data), 4):
+            if i + 3 >= len(msg.data):
+                break
+                
+            det_id = int(msg.data[i])
+            tx = msg.data[i+1]
+            ty = msg.data[i+2]
+            tz = msg.data[i+3]
+
+            # ONLY check the tag RouteManager is actively pursuing
+            if det_id == self.current_target_id:
+                dist = math.sqrt(tx**2 + ty**2 + tz**2)
+                if dist < self.distance_threshold:
+                    target_in_range = True
+                    break
+
         # msg.data = [id, x, y, z, …]
         dist = (msg.data[1]**2 + msg.data[2]**2 + msg.data[3]**2)**0.5
         in_range = dist < self.distance_threshold
 
-        if in_range:
+        if target_in_range:
             # start / refresh flash
             if not self.should_flash:
                 self.get_logger().info("Tag in range → begin flashing")

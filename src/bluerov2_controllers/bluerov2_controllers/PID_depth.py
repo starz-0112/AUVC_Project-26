@@ -24,18 +24,18 @@ class DepthPIDController(Node):
         self.current_depth = 0.0
 
         # --- Publishers & Subscribers ---
-        self.pub = self.create_publisher(ManualControl, 'manual_control', 10)
+        self.pub = self.create_publisher(ManualControl, '/manual_control', 10)
 
         self.sub = self.create_subscription(
             Float64,
-            'depth',
+            '/depth',
             self.converting_depth,
             10
         )
 
         self.sub_setpoint = self.create_subscription(
             Float64,
-            'target_depth',
+            '/target_depth',
             self.setpoint_callback,
             10
         )
@@ -48,7 +48,7 @@ class DepthPIDController(Node):
         """Receive desired depth in meters for PID."""
         meters = msg.data
         self.pid.setpoint = meters
-        self.get_logger().info(f"New setpoint: {feet:.2f} ft → {meters:.2f} m")
+        self.get_logger().info(f"New setpoint: {meters:.2f} m")
 
     def converting_depth(self, msg: Float64):
         self.current_depth = msg.data

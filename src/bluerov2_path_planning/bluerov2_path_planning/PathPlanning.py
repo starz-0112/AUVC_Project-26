@@ -28,7 +28,7 @@ class PathNode(Node):
         #Publishes visit order of points
         self.publisher = self.create_publisher(
             Polygon,
-            "/visit_order",
+            '/visit_order',
             10
         )
         

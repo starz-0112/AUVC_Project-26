@@ -12,21 +12,21 @@ from mavros_msgs.msg import OverrideRCIn
 import math
 import numpy as np
 
-## SEE THAT CURRENT COORDINATES MUST HAVE DEPTH IN METERS!!!
+## SEE THAT CURRENT COORDINATES MUST HAVE DEPTH IN METERS!!! Actually, everything in meters T-T
 
 class ROVMove(Node):
     def __init__(self):
         super().__init__("ROV_move")
 
         #List of all topics subscribed to
-        self.create_subscription(Float64, "/depth", self.depth_cb, 10) #depth
-        self.create_subscription(Imu, "/imu", self.imu_cb, 10) #heading
-        self.create_subscription(Point32, "/current_target", self.target_cb, 10) #current target
+        self.create_subscription(Float64, '/depth', self.depth_cb, 10) #depth
+        self.create_subscription(Imu, '/imu', self.imu_cb, 10) #heading
+        self.create_subscription(Point32, '/current_target', self.target_cb, 10) #current target
 
         #Publish (movement control)
-        self.pub_manual = self.create_publisher(ManualControl, "/manual_control", 10)
-        self.pub_depth_setpoint = self.create_publisher(Float64, "/target_depth", 10)
-        self.pub_heading_setpoint = self.create_publisher(Float64, "/target_heading", 10)
+        self.pub_manual = self.create_publisher(ManualControl, '/manual_control', 10)
+        self.pub_depth_setpoint = self.create_publisher(Float64, '/target_depth', 10)
+        self.pub_heading_setpoint = self.create_publisher(Float64, '/target_heading', 10)
 
         #State
         self.current_target = None

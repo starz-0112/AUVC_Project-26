@@ -19,7 +19,7 @@ class FakeBattery(Node):
         self.get_logger().info("FakeBattery node started, current level 100")
 
         self.target_sub = self.create_subscription(Polygon, '/current_target', self.target_callback, 10)
-        self.dock = (0.0, 0.0, 0.0) #Make sure this matches coords from PathPlanning
+        self.dock = (0, 0.0, 0.0, 0.0) #Make sure this matches coords from PathPlanning
         self.last_target = None
 
     def target_callback(self, msg):
