@@ -18,7 +18,7 @@ class AprilTagLocalization(Node):
             10: (0.0, 0.0, 0.0),
             11: (1.0, 1.0, 1.0),
             12: (2.0, 2.0, 2.0),
-            13: (3.0, 3.0, 3.0),
+            13: (2.0, 2.0, 0.25),
         }
 
         # Publishes position estimate

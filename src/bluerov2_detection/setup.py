@@ -1,10 +1,3 @@
-import os
-virtualenv_name = "detection"
-home_path = os.path.expanduser("~")
-executable_path = os.path.join(home_path, 'venvs', virtualenv_name, 'bin', 'python')
-#executable_path = os.path.join(home_path, '.virtualenvs', virtualenv_name, 'bin', 'python')
-
-
 from setuptools import find_packages, setup
 
 package_name = 'bluerov2_detection'
@@ -28,14 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'april_tag = bluerov2_detection.ReadAprilTags:main',
-            'tag_follow = bluerov2_detection.TagFollower:main',
-            'depth = bluerov2_detection.PressureToDepth:main',
-            'fake_battery = bluerov2_detection.FakeBattery:main'
+            'localization = bluerov2_detection.Localization:main',
+            'depth = bluerov2_detection.PressureToDepth:main'
         ],
-    },
-    options={
-        'build_scripts': {
-            'executable': executable_path,
-        }
     },
 )

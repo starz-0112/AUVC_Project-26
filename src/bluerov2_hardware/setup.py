@@ -21,6 +21,10 @@ setup(
     entry_points={
         'console_scripts': [
             'arm_disarm = bluerov2_hardware.ArmDisarm:main',
+            'fake_battery = bluerov2_hardware.FakeBattery:main',
+            'fake_camera = bluerov2_hardware.FakeCamera:main',
+            'lights = bluerov2_hardware.LEDControl:main',
+            'mission_timer = bluerov2_hardware.MissionTimer:main',
         ],
     },
 )

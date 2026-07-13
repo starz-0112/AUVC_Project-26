@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'lights = bluerov2_mission.FlashyLights:main',
+            'route_manager = bluerov2_mission.RouteManager:main',
             'movement = bluerov2_mission.MainMovement:main',
             'manual_next = bluerov2_mission.ManualNext:main'
         ],
