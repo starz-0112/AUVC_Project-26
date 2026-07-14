@@ -17,11 +17,12 @@ class SLAM(Node):
         # Estimated positionings - NOT SUPER ACCURATE
         self.robot_x = 0.0
         self.robot_y = 0.0
-        self.robot_z = 0.0
+
+        self.robot_depth = 0.0
 
         self.heading_deg = 0.0
 
-        self.forward_spd = 0.0
+        self.forward_speed = 0.0
 
         # Time since last update for dead-reckoning (estimated position)
         self.last_time = self.get_clock().now()
@@ -105,7 +106,7 @@ class SLAM(Node):
 
         return dx, dy, dz
     
-    def detection_callback(self, msg: Float64MultiArray):
+    def apriltag_callback(self, msg: Float64MultiArray):
         # The detector publishes data in groups of four values:
         # [id, x, y, z,
         # id, x, y, z,
@@ -121,6 +122,9 @@ class SLAM(Node):
             return # Returns empty if no tags detected
         
         for i in range(0, len(data), 4):
+            if i + 3 >= len(data):
+                break
+            
             tag_id = int(data[i])
 
             camera_x = float(data[i + 1])
@@ -197,13 +201,13 @@ class SLAM(Node):
         self.get_logger().debug(f"Updated landmark {tag_id} (seen {landmark['times_seen']} times)")
 
     def correct_from_fixed_tag(self, tag_id, camera_x, camera_y, camera_z):
-        tag_world_x, tag_world_y, tag_world_z = self.fixed_tags[tag_id]
+        tag_world_x, tag_world_y = self.fixed_tags[tag_id]
 
         dx, dy, dz = self.camera_to_world_offset(camera_x, camera_y, camera_z)
 
         measured_robot_x = tag_world_x - dx
         measured_robot_y = tag_world_y - dy
-        measured_robot_z = tag_world_z - dz
+        # measured_robot_z = tag_world_z - dz
 
         # Gotta research more about this correction thing here:
         correction_gain = 0.3

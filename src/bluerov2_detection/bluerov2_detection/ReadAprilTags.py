@@ -51,6 +51,7 @@ class AprilTagDetectorNode(Node):
         self.get_logger().info("AprilTagDetectorNode started, subscribing to 'camera'")
 
     def image_cb(self, msg: Image):
+        self.get_logger().info("Received camera frame")
         # convert ROS Image → OpenCV BGR
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

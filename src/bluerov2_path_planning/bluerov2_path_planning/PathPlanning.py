@@ -5,7 +5,7 @@ import rclpy
 from rclpy.node import Node
 import math
 from functools import lru_cache
-from geometry_msgs.msg import Polygon, Point32
+from std_msgs.msg import Float64MultiArray
 
 SPEED_MPS = 0.2 #In m/s
 MAX_LEG_TIME = 20.0 # Available time, in sec, for the robot to drain battery
@@ -18,16 +18,16 @@ class PathNode(Node):
         #Given points here
         dock = (0, 0.0, 0.0, 0.0)
         visit_points = [
-            (1, 1.0, 2.0, 3.0),
-            (2, 2.0, 3.0, 4.0),
-            (3, 3.0, 4.0, 5.0),
-            (4, 4.0, 5.0, 6.0),
-            (5, 5.0, 6.0, 7.0)
+            (6, 1.0, 2.0, 3.0),
+            (7, 2.0, 3.0, 4.0),
+            (8, 3.0, 4.0, 5.0),
+            (9, 4.0, 5.0, 6.0),
+            (10, 5.0, 6.0, 7.0)
         ]
 
         #Publishes visit order of points
         self.publisher = self.create_publisher(
-            Polygon,
+            Float64MultiArray,
             '/visit_order',
             10
         )
@@ -39,44 +39,49 @@ class PathNode(Node):
         self.get_logger().info(f"Battery-aware route: {battery_route}")
 
         #Published output
-        self.publish_order(battery_route)
+        self.route = battery_route
 
+        self.timer = self.create_timer(1.0, self.publish_order_timer)
+
+    def publish_order_timer(self):
+        self.publish_order(self.route)
+    
     #Publish in optimized order
     def publish_order(self, ordered_points):
-        msg = Polygon()
+        msg = Float64MultiArray()
 
-        for (a, x, y, z) in ordered_points:
-            p = Point32()
-            p.id = a
-            p.x = float(x)
-            p.y = float(y)
-            p.z = float(z)
-            msg.points.append(p)
+        for (tag_id, x, y, z) in ordered_points:
+            msg.data.extend([
+                float(tag_id),
+                float(x),
+                float(y),
+                float(z)
+            ])
 
         self.publisher.publish(msg)
-        self.get_logger().info(f"Published coordinate order with {len(msg.points)} points")
+        self.get_logger().info(f"Published coordinate order with {len(ordered_points)} points")
 
     #Held-Karp Algorithm
     def held_karp(self, dock, visit_points):
-        total_pts = [dock] + visit_points
-        n = len(total_pts)
+        all_points = [dock] + visit_points
+        n = len(visit_points)
 
         # Precompute distances - how does this account for the id of the tag at the front?
-        D = [[math.dist(total_pts[i], total_pts[j]) for j in range(n)] for i in range(n)]
+        D = [[math.dist(all_points[i][1:], all_points[j][1:]) for j in range(n + 1)] for i in range(n + 1)]
 
         @lru_cache(None)
         def dp(mask, last):
             if mask == (1 << last):
-                return D[0][last], [last]
+                return D[0][last + 1], [last]
             
             best_cost = float('inf')
             best_path = None
             prev_mask = mask ^ (1 << last)
 
-            for k in range(1, n):
+            for k in range(n):
                 if prev_mask & (1 << k):
                     cost, path = dp(prev_mask, k)
-                    new_cost = cost + D[k][last]
+                    new_cost = cost + D[k + 1][last + 1]
                     if new_cost < best_cost:
                         best_cost = new_cost
                         best_path = path + [last]
@@ -87,15 +92,25 @@ class PathNode(Node):
         best_cost = float('inf')
         best_path = None
 
-        for last in range(1, n):
+        for last in range(n):
             cost, path = dp(full_mask, last)
-            cost += D[last][0] #returns to start (dock) position
+            cost += D[last + 1][0] #returns to start (dock) position
             if cost < best_cost:
                 best_cost = cost
-                best_path = path + [0] #append start (dock)
+                best_path = path
 
         #Reconvert into coordinates
-        return [total_pts[i] for i in best_path]
+        if best_path is None:
+            raise RuntimeError("Held-Karp failed to find a valid path.")
+
+        route = [dock]
+
+        for idx in best_path:
+            route.append(visit_points[idx])
+
+        route.append(dock)
+
+        return route
 
     def apply_time_constraints(self, dock, route):
      # This one only slots in stops regularly - it doesn't account global awareness stuffs
@@ -103,37 +118,47 @@ class PathNode(Node):
         if not route:
             return []
 
-        battery_route = []
+        battery_route = [route[0]]
         leg_time = 0.0
 
         for i in range(len(route) - 1):
             p_curr = route[i]
             p_next = route[i+1]
 
-            dist = math.dist(p_curr, p_next)
-            seg_time = dist / SPEED_MPS
+            # Time from current point to next point
+            seg_time = math.dist(p_curr[1:], p_next[1:]) / SPEED_MPS
 
-            if leg_time + seg_time > MAX_LEG_TIME:
+            # Time needed to return home FROM the next point
+            return_time = math.dist(p_next[1:], dock[1:]) / SPEED_MPS
+
+            # Can we safely reach the next point AND still make it home?
+            if leg_time + seg_time + return_time > MAX_LEG_TIME:
                 if battery_route and battery_route[-1] != dock:
                     battery_route.append(dock)
                     self.get_logger().info("Battery limit reached, heading to dock")
-            
-                leg_time = math.dist(dock[1:3], p_next[1:3]) / SPEED_MPS
-                battery_route.append(dock)
-                battery_route.append(p_next)
-            else:
-                if not battery_route:
-                    battery_route.append(p_curr)
-                battery_route.append(p_next)
-                leg_time += seg_time
+                
+                leg_time = 0.0
+                seg_time = math.dist(dock[1:], p_next[1:]) / SPEED_MPS
+
+            battery_route.append(p_next)
+            leg_time += seg_time
+
         if battery_route[-1] != dock:
             battery_route.append(dock)
+        
+        clean_route = []
+        for point in battery_route:
+            if not clean_route or point != clean_route[-1]:
+                clean_route.append(point)
 
-        return battery_route
-
+        return clean_route
+    
 def main(args=None):
     rclpy.init(args=args)
     node = PathNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
+
+if __name__ == "__main__":
+    main()

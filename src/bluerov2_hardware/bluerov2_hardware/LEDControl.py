@@ -26,11 +26,11 @@ class FlashLights(Node):
         # pub /sub
         self.command_pub = self.create_publisher(OverrideRCIn, "/mavros/rc/override", 10)
         self.create_subscription(
-            Float64MultiArray, "apriltag/detection",
+            Float64MultiArray, "/apriltag/detection",
             self.april_tag_callback, 10
         )
         self.create_subscription(
-            Point32, "/current_target",
+            Float64MultiArray, "/current_target",
             self.target_callback, 10
         )
 
@@ -38,12 +38,14 @@ class FlashLights(Node):
         self.current_target_id = None
         self.should_flash = False
         self.light_on     = False
-        self.last_toggle  = self.now()
+        self.last_toggle  = self.get_clock().now()
         self.last_det_t   = None
 
-    def target_callback(self, msg: Point32):
+        self.timer = self.create_timer(0.1, self._on_timer)
+
+    def target_callback(self, msg: Float64MultiArray):
         """Updates the active tag ID we should care about."""
-        self.current_target_id = int(msg.id)
+        self.current_target_id = int(msg.data[0])
     
     def april_tag_callback(self, msg: Float64MultiArray):
         if self.current_target_id is None:
@@ -68,39 +70,49 @@ class FlashLights(Node):
                     break
 
         # msg.data = [id, x, y, z, …]
-        dist = (msg.data[1]**2 + msg.data[2]**2 + msg.data[3]**2)**0.5
-        in_range = dist < self.distance_threshold
+        # dist = (msg.data[1]**2 + msg.data[2]**2 + msg.data[3]**2)**0.5
+        # in_range = dist < self.distance_threshold
 
         if target_in_range:
             # start / refresh flash
             if not self.should_flash:
                 self.get_logger().info("Tag in range → begin flashing")
-            self.should_flash = True
-            self.last_det_t  = self.now()
+                self.should_flash = True
+                self.light_on = True
+                self.last_toggle = self.get_clock().now()
+                self._set_light_level(100)
+            self.last_det_t  = self.get_clock().now()
 
         else:
             # immediate stop if tag is too far
-            if self.should_flash:
-                self.get_logger().info("Tag out of range → stop flashing")
-            self.should_flash = False
+            # if self.should_flash:
+            #     self.get_logger().info("Tag out of range → stop flashing")
+            # self.should_flash = False
+            pass
 
     def _on_timer(self):
-        t = self.now()
+        t = self.get_clock().now()
         # expire stale detection
         if self.should_flash and self.last_det_t is not None:
-            if (t - self.last_det_t) > self.detection_timeout:
+            elapsed = (t - self.last_det_t).nanoseconds / 1e9
+
+            if elapsed > self.detection_timeout:
                 self.get_logger().info("Detection timeout → stop flashing")
                 self.should_flash = False
 
         if self.should_flash:
             # handle on/off durations
             if self.light_on:
-                if (t - self.last_toggle) >= self.flash_on_duration:
+                elapsed = (t - self.last_toggle).nanoseconds / 1e9
+
+                if elapsed >= self.flash_on_duration:
                     self.light_on    = False
                     self.last_toggle = t
                     self._set_light_level(0)
             else:
-                if (t - self.last_toggle) >= self.flash_off_duration:
+                elapsed = (t - self.last_toggle).nanoseconds / 1e9
+
+                if elapsed >= self.flash_off_duration:
                     self.light_on    = True
                     self.last_toggle = t
                     self._set_light_level(100)
