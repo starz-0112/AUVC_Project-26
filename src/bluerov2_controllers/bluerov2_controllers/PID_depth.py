@@ -25,6 +25,7 @@ class DepthPIDController(Node):
 
         # --- Publishers & Subscribers ---
         self.pub = self.create_publisher(ManualControl, '/manual_control', 10)
+        self.pub = self.create_publisher(ManualControl, '/rov1/manual_control', 10)
 
         self.sub = self.create_subscription(
             Float64,
@@ -67,14 +68,18 @@ class DepthPIDController(Node):
             f"[PID] depth={self.current_depth:.3f} m  setpt={self.pid.setpoint:.3f} m  → thrust z={m.z:.3f}"
         )
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = DepthPIDController()
+
     try:
         rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
     finally:
         node.destroy_node()
         rclpy.shutdown()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

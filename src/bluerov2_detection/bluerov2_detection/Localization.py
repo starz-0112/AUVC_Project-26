@@ -15,10 +15,12 @@ class AprilTagLocalization(Node):
 
         # Known tag positions in "world frame"
         self.tag_locations = {
-            10: (0.0, 0.0, 0.0),
-            11: (1.0, 1.0, 1.0),
-            12: (2.0, 2.0, 2.0),
-            13: (2.0, 2.0, 0.25),
+            6: (0.0, 2.4),
+            7: (1.0, 0.0),
+            8: (2.0, 2.4),
+            9: (3.0, 0.0),
+            10: (4.0, 2.4),
+            13: (0.0, 0.0)
         }
 
         # Publishes position estimate

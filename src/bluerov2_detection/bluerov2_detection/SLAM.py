@@ -5,14 +5,21 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Point32
 from sensor_msgs.msg import Imu
-from std_msgs.msg import Float64
-from std_msgs.msg import Float64MultiArray
-from std_msgs.msg import Int16
+from std_msgs.msg import Float64, Float64MultiArray, Int16
+from mavros_msgs.msg import ManualControl # movement
 
 class SLAM(Node):
     def __init__(self):
         super().__init__('SLAM_node')
         self.get_logger().info("SLAM node started!")
+
+        # To be tweaked
+        self.surge_command = 0.0
+        self.sway_command = 0.0
+
+        # TUNE LATER! THIS SHOULD PROBABLY MATCH MAINMOVEMENT INFO
+        self.max_manual = 400.0
+        self.max_speed = 0.22   # tune experimentally
 
         # Estimated positionings - NOT SUPER ACCURATE
         self.robot_x = 0.0
@@ -22,8 +29,6 @@ class SLAM(Node):
 
         self.heading_deg = 0.0
 
-        self.forward_speed = 0.0
-
         # Time since last update for dead-reckoning (estimated position)
         self.last_time = self.get_clock().now()
 
@@ -32,11 +37,12 @@ class SLAM(Node):
 
         # Tags on the route/future targets that most definitely are not moving
         self.fixed_tags = {
-            1: (1.0, 2.0),
-            2: (2.0, 3.0),
-            3: (3.0, 4.0),
-            4: (4.0, 5.0),
-            5: (5.0, 6.0)
+            6: (4.62, 0),
+            7: (0.0, -1.0),
+            8: (4.62, -2.0),
+            9: (0.0, -3.0),
+            10: (4.62, -4.0),
+            13: (0.0, 0.0)
         }
 
         # Pubs
@@ -44,28 +50,38 @@ class SLAM(Node):
 
         #Subs
         # Will give an array with [id, dx, dy, dz, stuffs]
+        self.create_subscription(ManualControl, '/manual_control', self.manual_control_callback, 10)
+        self.create_subscription(ManualControl, '/rov1/manual_control', self.manual_control_callback, 10)
+
         self.create_subscription(Float64MultiArray, "apriltag/detection", self.apriltag_callback, 10)
+            
         self.create_subscription(Int16, "/heading", self.heading_callback, 10)
+        self.create_subscription(Int16, "/rov1/heading", self.heading_callback, 10)
+
         self.create_subscription(Float64, "/depth", self.depth_callback, 10)
-        self.create_subscription(Imu, "/imu", self.imu_callback, 10)
+        # self.create_subscription(Imu, "/imu", self.imu_callback, 10)
 
         self.timer = self.create_timer(0.05, self.dead_reckoning) # 20 Hz
 
+    def manual_control_callback(self, msg):
+        self.surge_command = msg.x
+        self.sway_command = msg.y
+    
     def heading_callback(self, msg: Int16):
         self.heading_deg = float(msg.data)
     
     def depth_callback(self, msg: Float64):
         self.robot_depth = float(msg.data)
     
-    def imu_callback(self, msg: Imu):
+    # def imu_callback(self, msg: Imu):
         # Keep in mind that because we think IMU is untrustworthy, we aren't integrating it - we're using direct velocity instead
-        self.ax = msg.linear_acceleration.x
-        self.ay = msg.linear_acceleration.y
-        self.az = msg.linear_acceleration.z
+        # self.ax = msg.linear_acceleration.x
+        # self.ay = msg.linear_acceleration.y
+        # self.az = msg.linear_acceleration.z
 
-        self.wx = msg.angular_velocity.x
-        self.wy = msg.angular_velocity.y
-        self.wz = msg.angular_velocity.z
+        # self.wx = msg.angular_velocity.x
+        # self.wy = msg.angular_velocity.y
+        # self.wz = msg.angular_velocity.z
 
     def dead_reckoning(self):
         # Position estimation method - this is the section I will probably have to adjust the most
@@ -75,12 +91,13 @@ class SLAM(Node):
 
         if dt <= 0:
             return # Aka you can't update instantly
-        
-        distance = self.forward_speed * dt
         heading = math.radians(self.heading_deg)
+        
+        surge_speed = (self.surge_command / self.max_manual) * self.max_speed
+        sway_speed  = (self.sway_command  / self.max_manual) * self.max_speed
 
-        dx = distance * math.sin(heading)
-        dy = distance * math.cos(heading)
+        dx = (surge_speed * math.sin(heading) + sway_speed  * math.cos(heading)) * dt
+        dy = (surge_speed * math.cos(heading) - sway_speed  * math.sin(heading)) * dt
 
         self.robot_x += dx
         self.robot_y += dy
@@ -227,13 +244,18 @@ class SLAM(Node):
 
         self.position_pub.publish(position)
 
-
 def main(args=None):
     rclpy.init(args=args)
     node = SLAM()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()

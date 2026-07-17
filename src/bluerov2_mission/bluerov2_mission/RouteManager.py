@@ -102,12 +102,13 @@ class RouteManager(Node):
 
         msg = Float64MultiArray()
         msg.data = [
-            float(target_id),
             float(x),
             float(y),
             float(z)
         ]
+
         self.target_pub.publish(msg)
+
         self.get_logger().info(f"Current target ID: {target_id} at ({x}, {y}, {z})")
 
     def manual_next_callback(self, msg):
@@ -149,9 +150,15 @@ class RouteManager(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = RouteManager()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()

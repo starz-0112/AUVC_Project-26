@@ -14,6 +14,12 @@ class ConvertToDepth(Node):
             self.convert_to_depth,
             10
         )
+        self.sub = self.create_subscription(
+            FluidPressure,
+            "/rov1/pressure",
+            self.convert_to_depth,
+            10
+        )
 
         self.pub = self.create_publisher(
             Float64,
@@ -48,3 +54,6 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+
+if __name__ == "__main__":
+    main()

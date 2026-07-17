@@ -1,0 +1,89 @@
+launch:
+
+#Should have everything needed for my program needs :D
+
+- node:
+    pkg: "bluerov2_controllers"
+    exec: "depth_publisher"
+    name: "SetpointPublisher"
+    namespace: ""
+
+- node:
+    pkg: "bluerov2_controllers"
+    exec: "pid_depth"
+    name: "DepthPIDController"
+    namespace: ""
+
+- node:
+    pkg: "bluerov2_controllers"
+    exec: "pid_heading"
+    name: "HeadingLockOnly"
+    namespace: ""
+
+# MUST MUST MUST LAUNCH SEPARATELY BC OF VENV/DEPENDENCIES!!!
+# - node:
+    # pkg: "bluerov2_detection"
+    # exec: "april_tag"
+    # name: "AprilTagDetectorNode"
+    # namespace: ""
+
+- node:
+    pkg: "bluerov2_detection"
+    exec: "depth"
+    name: "ConvertToDepth"
+    namespace: ""
+
+- node:
+    pkg: "bluerov2_detection"
+    exec: "SLAM"
+    name: "SLAM"
+    namespace: ""
+
+- node:
+    pkg: "bluerov2_hardware"
+    exec: "arm_disarm"
+    name: "ArmDisarm"
+    namespace: ""
+
+# - node:
+    # pkg: "bluerov2_hardware"
+    # exec: "fake_battery"
+    # name: "FakeBattery"
+    # namespace: ""
+
+# - node:
+    # pkg: "bluerov2_hardware"
+    # exec: "lights"
+    # name: "FlashLights"
+    # namespace: ""
+
+# - node:
+    # pkg: "bluerov2_hardware"
+    # exec: "mission_timer"
+    # name: "MissionTimer"
+    # namespace: ""
+
+# MOST IMPORTANT FILES HERE
+- node:
+    pkg: "bluerov2_mission"
+    exec: "route_manager"
+    name: "RouteManager"
+    namespace: ""
+
+- node:
+    pkg: "bluerov2_mission"
+    exec: "movement"
+    name: "ROVMove"
+    namespace: ""
+
+- node:
+    pkg: "bluerov2_mission"
+    exec: "manual_next"
+    name: "ManualNext"
+    namespace: ""
+
+- node:
+    pkg: "bluerov2_path_planning"
+    exec: "path_planning"
+    name: "PathNode"
+    namespace: ""

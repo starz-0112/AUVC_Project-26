@@ -35,6 +35,13 @@ class AprilTagDetectorNode(Node):
             10
         )
 
+        self.create_subscription(
+            Image,
+            '/rov1/camera',
+            self.image_cb,
+            10
+        )
+
         # publishes annotated image with bounding‐boxes
         self.pub_image = self.create_publisher(
             Image,

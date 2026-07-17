@@ -22,7 +22,8 @@ setup(
         'console_scripts': [
             'april_tag = bluerov2_detection.ReadAprilTags:main',
             'localization = bluerov2_detection.Localization:main',
-            'depth = bluerov2_detection.PressureToDepth:main'
+            'depth = bluerov2_detection.PressureToDepth:main',
+            'SLAM = bluerov2_detection.SLAM:main'
         ],
     },
 )

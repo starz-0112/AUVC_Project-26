@@ -35,6 +35,13 @@ class MissionTimer(Node):
     def now(self):
         return self.get_clock().now().nanoseconds * 1e-9
     
+    def _on_timer(self):
+        # Publish live updates only when the mission is active
+        if self.mission_started and self.mission_start_time is not None:
+            current_elapsed = self.now() - self.mission_start_time
+            time_msg = Float64(data=float(current_elapsed))
+            self.time_pub.publish(time_msg)
+    
     def status_callback(self, msg: Bool):
         # Start the timer if it is not already running
         if msg.data:

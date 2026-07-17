@@ -17,7 +17,7 @@ class HeadingLockOnly(Node):
         self.deadband = 0.5
         self.int_thresh = 15.0
         self.max_d = 35.0
-        self.target = 0.0  # Default target heading (in degrees)
+        self.target = 90.0  # Default target heading (in degrees)
         self._alpha = 0.7
 
         # ── State ──
@@ -28,7 +28,11 @@ class HeadingLockOnly(Node):
 
         # ── ROS Setup ──
         self.pub = self.create_publisher(ManualControl, '/manual_control', 10)
+        self.pub = self.create_publisher(ManualControl, '/rov1/manual_control', 10)
+
         self.create_subscription(Int16, '/heading', self.heading_cb, 10)
+        self.create_subscription(Int16, '/rov1/heading', self.heading_cb, 10)
+
         self.create_subscription(Float64, '/target_heading', self.target_heading_cb, 10)
         self.create_timer(0.1, self.loop_cb)
 
@@ -68,7 +72,7 @@ class HeadingLockOnly(Node):
                 d = max(min(d, self.max_d), -self.max_d)
 
         self._prev_err = err
-        r_cmd = max(min(p + i + d, 700.0), -700.0)
+        r_cmd = max(min(p + i + d, 200.0), -200.0)
 
         # Publish yaw control only
         mc = ManualControl()

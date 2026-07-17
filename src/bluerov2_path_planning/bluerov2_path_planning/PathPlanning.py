@@ -7,8 +7,8 @@ import math
 from functools import lru_cache
 from std_msgs.msg import Float64MultiArray
 
-SPEED_MPS = 0.2 #In m/s
-MAX_LEG_TIME = 20.0 # Available time, in sec, for the robot to drain battery
+SPEED_MPS = 8.35 #In m/s
+MAX_LEG_TIME = 60.0 # Available time, in sec, for the robot to drain battery
 
 class PathNode(Node):
     def __init__(self):
@@ -18,11 +18,11 @@ class PathNode(Node):
         #Given points here
         dock = (0, 0.0, 0.0, 0.0)
         visit_points = [
-            (6, 1.0, 2.0, 3.0),
-            (7, 2.0, 3.0, 4.0),
-            (8, 3.0, 4.0, 5.0),
-            (9, 4.0, 5.0, 6.0),
-            (10, 5.0, 6.0, 7.0)
+            (6, 4.62, 0.0, 0.0),
+            (7, 0.0, -1.0, 0.0),
+            (8, 4.62, -2.0, 0.0),
+            (9, 0.0, -3.0, 0.0),
+            (10, 4.62, -4.0, 0.0)
         ]
 
         #Publishes visit order of points
@@ -156,9 +156,15 @@ class PathNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = PathNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()
