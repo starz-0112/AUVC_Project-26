@@ -1,0 +1,427 @@
+# One AprilTag .sdf file (for Tag 0, can reference for others)
+
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='Apriltag36_11_00000'>
+    <link name='main'>
+    <pose frame=''>0 0 0 0 0 0</pose>
+      <visual name='main_Visual'>
+        <geometry>
+          <box>
+          <!-- original: 1.0 1.0 0.01 -->
+          <size>0.05 0.05 0.001</size>
+          </box>
+        </geometry>
+        <!--
+           <material>
+          <script>
+            <uri>model://Apriltag36_11_00000/materials/scripts</uri>
+            <uri>model://Apriltag36_11_00000/materials/textures</uri>
+            <name>Apriltag36_11_00000</name>
+          </script>
+        </material>
+        -->
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://Apriltag36_11_00000/materials/textures/tag36_11_00000.png</albedo_map>
+              <roughness>0.9</roughness>
+              <metalness>0.0</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+     </link>
+    <static>1</static>
+  </model>
+</sdf>
+
+###################################################################################################
+
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='Apriltag36_11_00001'>
+    <link name='main'>
+    <pose frame=''>0 0 0 0 0 0</pose>
+      <visual name='main_Visual'>
+        <geometry>
+          <box>
+          <!-- original: 1.0 1.0 0.01 -->
+          <size>0.05 0.05 0.001</size>
+          </box>
+        </geometry>
+
+        <!--
+           <material>
+          <script>
+            <uri>model://Apriltag36_11_00001/materials/scripts</uri>
+            <uri>model://Apriltag36_11_00001/materials/textures</uri>
+            <name>Apriltag36_11_00001</name>
+          </script>
+        </material>
+        -->
+
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://Apriltag36_11_00000/materials/textures/tag36_11_00000.png</albedo_map>
+              <roughness>0.9</roughness>
+              <metalness>0.0</metalness>
+            </metal>
+          </pbr>
+        </material>
+
+      </visual>
+     </link>
+    <static>1</static>
+  </model>
+</sdf>
+
+########################################################################################################################
+
+#blenderkit.jpg was just duplicated from the pool textures
+
+########################################################################################################################
+
+Cube's model.config:
+<?xml version="1.0"?>
+<model>
+  <name>Water Cube</name>
+  <version>1.0</version>
+  <sdf version="1.9">model.sdf</sdf>
+
+  <author>
+    <name>Zoe Guo</name>
+    <email>zguo011235@gmail.com</email>
+  </author>
+
+  <description>
+    A simple 10x10x10 meter box to store/represent a water volume.
+  </description>
+</model>
+
+Cube's model.sdf:
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <model name="water_cube">
+    <static>true</static> 
+
+    <link name="tank_structure_link">
+      
+      <!-- --- INTERNAL LIGHT --- -->
+      <light name="tank_internal_light" type="point">
+        <pose>0 0 3.5 0 0 0</pose>
+        <diffuse>1.0 1.0 1.0 1.0</diffuse>
+        <specular>0.0 0.0 0.0 1.0</specular>
+        <attenuation>
+          <range>30.0</range>
+          <linear>0.0</linear>
+          <quadratic>0.0</quadratic>
+          <constant>1.0</constant> 
+        </attenuation>
+        <cast_shadows>true</cast_shadows>
+        <intensity>1.0</intensity>
+      </light>
+
+      <!-- --- TANK FLOOR (Textured) --- -->
+      <visual name="floor_visual">
+        <pose>0 0 -3.55 0 0 0</pose>
+        <cast_shadows>true</cast_shadows>
+        <geometry><box><size>7.1 7.1 0.1</size></box></geometry>
+        <material>
+          <diffuse>1.0 1.0 1.0 1.0</diffuse>
+          <specular>0.0 0.0 0.0 1.0</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://water_cube/blenderkit.jpg</albedo_map>
+              <uv_set>0</uv_set>
+              <roughness>0.9</roughness>
+              <metalness>0.01</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <collision name="floor_collision">
+        <pose>0 0 -3.55 0 0 0</pose>
+        <geometry><box><size>7.1 7.1 0.1</size></box></geometry>
+      </collision>
+
+      <!-- --- NORTH WALL (+X) (TEXTURED) --- -->
+      <visual name="wall_north_visual">
+        <pose>3.55 0 0 0 0 0</pose>
+        <cast_shadows>true</cast_shadows>
+        <geometry><box><size>0.1 7.1 7.0</size></box></geometry>
+        <material>
+          <diffuse>1.0 1.0 1.0 1.0</diffuse>
+          <specular>0.0 0.0 0.0 1.0</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://water_cube/blenderkit.jpg</albedo_map>
+              <uv_set>0</uv_set>
+              <roughness>0.9</roughness>
+              <metalness>0.01</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <collision name="wall_north_collision">
+        <pose>3.55 0 0 0 0 0</pose>
+        <geometry><box><size>0.1 7.1 7.0</size></box></geometry>
+      </collision>
+
+      <!-- --- SOUTH WALL (-X) (60% GLASS WINDOW) --- -->
+      <visual name="wall_south_visual">
+        <pose>-3.55 0 0 0 0 0</pose>
+        <cast_shadows>false</cast_shadows> 
+        <geometry><box><size>0.1 7.1 7.0</size></box></geometry>
+        <material>
+          <ambient>0.3 0.6 0.9 0.6</ambient>
+          <diffuse>0.3 0.6 0.9 0.6</diffuse>
+          <specular>0.7 0.7 0.7 1.0</specular>
+        </material>
+      </visual>
+      <collision name="wall_south_collision">
+        <pose>-3.55 0 0 0 0 0</pose>
+        <geometry><box><size>0.1 7.1 7.0</size></box></geometry>
+      </collision>
+
+      <!-- --- EAST WALL (+Y) (TEXTURED) --- -->
+      <visual name="wall_east_visual">
+        <pose>0 3.55 0 0 0 0</pose>
+        <cast_shadows>true</cast_shadows>
+        <geometry><box><size>7.1 0.1 7.0</size></box></geometry>
+        <material>
+          <diffuse>1.0 1.0 1.0 1.0</diffuse>
+          <specular>0.0 0.0 0.0 1.0</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://water_cube/blenderkit.jpg</albedo_map>
+              <uv_set>0</uv_set>
+              <roughness>0.9</roughness>
+              <metalness>0.01</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <collision name="wall_east_collision">
+        <pose>0 3.55 0 0 0 0</pose>
+        <geometry><box><size>7.1 0.1 7.0</size></box></geometry>
+      </collision>
+
+      <!-- --- WEST WALL (-Y) (TEXTURED) --- -->
+      <visual name="wall_west_visual">
+        <pose>0 -3.55 0 0 0 0</pose>
+        <cast_shadows>true</cast_shadows>
+        <geometry><box><size>7.1 0.1 7.0</size></box></geometry>
+        <material>
+          <diffuse>1.0 1.0 1.0 1.0</diffuse>
+          <specular>0.0 0.0 0.0 1.0</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://water_cube/blenderkit.jpg</albedo_map>
+              <uv_set>0</uv_set>
+              <roughness>0.9</roughness>
+              <metalness>0.01</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <collision name="wall_west_collision">
+        <pose>0 -3.55 0 0 0 0</pose>
+        <geometry><box><size>7.1 0.1 7.0</size></box></geometry>
+      </collision>
+
+    </link>
+  </model>
+</sdf>
+
+################################################################################################################
+
+What I currently have in the .world file:
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="bluerov2_pool_sim">
+  <!-- 90% sure THIS IS THE ONE I'M RUNNING! -->
+
+    <magnetic_field>0.21523 0.0 0.42741</magnetic_field>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>42.3601</latitude_deg>
+      <longitude_deg>-71.0942</longitude_deg>
+      <elevation>10.0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
+    <!-- Base Gazebo plugins -->
+    <plugin
+        filename="gz-sim-physics-system"
+        name="gz::sim::systems::Physics">
+    </plugin>
+    <plugin
+        filename="gz-sim-user-commands-system"
+        name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin
+        filename="gz-sim-scene-broadcaster-system"
+        name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::v8::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <plugin
+      filename="libgz-sim-imu-system.so"
+      name="gz::sim::systems::Imu">
+    </plugin>
+
+    <plugin
+      filename="libgz-sim-magnetometer-system.so"
+      name="gz::sim::systems::Magnetometer">
+    </plugin>
+
+    <plugin
+      filename="PressureSensorSystem"
+      name="custom::PressureSensorSystem">  
+    </plugin>
+
+    <plugin
+        filename="gz-sim-buoyancy-system"
+        name="gz::sim::systems::Buoyancy">
+      <graded_buoyancy>
+        <default_density>1000</default_density>
+        <density_change>
+          <above_depth>0</above_depth>
+          <density>1</density>
+        </density_change>
+      </graded_buoyancy>
+      <enable>rov1</enable>
+    </plugin>
+
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun</uri>
+    </include>
+
+    <!-- Old pool mapping
+    <include>
+        <uri>model://pool_map</uri>
+       <name>pool</name>
+       <pose>15 0 -0.3 0 0 0</pose>
+     </include> -->
+
+    <!-- New water cube
+    <include>
+      <uri>model://water_cube</uri>
+      <name>water_cube</name>
+      <pose>0 0 -3.5 0 0 0</pose> 
+    </include>
+    -->
+
+    <include>
+      <uri>model://bluerov2_2025_port_9002</uri>
+      <name>rov1</name>
+      <pose>0 0 -0.5 0 0 0</pose>
+    </include>
+
+    <!-- New AprilTags on walls -->
+    <include>
+      <uri>model://Apriltag36_11_00000</uri>
+      <name>apriltag_wall_00</name>
+      <pose>0 3.5 -1.0 0 1.5708 1.5708</pose>
+    </include>
+
+    <include>
+      <uri>model://Apriltag36_11_00001</uri>
+      <name>apriltag_wall_01</name>
+      <pose>3.5 0 -1.0 0 1.5708 3.1416</pose>
+    </include>
+
+    <include>
+      <uri>model://Apriltag36_11_00002</uri>
+      <name>apriltag_wall_02</name>
+      <pose>-3.5 0 -1.0 0 1.5708 0</pose>
+    </include>
+
+    <include>
+      <uri>model://Apriltag36_11_00003</uri>
+      <name>apriltag_wall_03</name>
+      <pose>0 -3.5 -1.0 0 1.5708 -1.5708</pose>
+    </include>
+
+    <include>
+      <uri>model://Apriltag36_11_00004</uri>
+      <name>apriltag_wall_04</name>
+      <pose>0 -3.5 -2.0 0 1.5708 -1.5708</pose>
+    </include>
+
+    <!-- DOCK -->
+    <include>
+      <uri>model://Apriltag36_11_00005</uri>
+      <name>apriltag_wall_05</name>
+      <pose>0 0 -7.0 0 0 0</pose>
+    </include>
+
+  </world>
+</sdf>
+
+########################################################
+
+A build.sh?
+
+#!/usr/bin/env bash
+
+set -e
+
+mkdir -p build
+
+pushd build
+
+# if macOS, add qt5 to path
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export PATH="$(brew --prefix qt5)/bin":$PATH
+fi
+
+# prepare build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+
+# build plugins
+cmake --build . --target ArduPilotPlugin -- -j$(nproc)
+cmake --build . --target ParachutePlugin -- -j$(nproc)
+cmake --build . --target PressureSensor -- -j$(nproc)
+cmake --build . --target PressureSensorSystem -- -j$(nproc)
+
+# build stream_camera
+cmake --build . --target stream_camera -- -j$(nproc)
+
+popd
+
+##########################################################
+
+A launch_1x_bluerov2.sh?
+
+#!/usr/bin/env bash
+
+trap "kill -- -$$" EXIT SIGINT SIGTERM
+
+# add ArduPilotPlugin to Gazebo plugin path
+export GZ_SIM_SYSTEM_PLUGIN_PATH=$PWD/build/_deps/ardupilot_gazebo-build:$GZ_SIM_SYSTEM_PLUGIN_PATH
+export GZ_SIM_SYSTEM_PLUGIN_PATH=$PWD/build/plugins/:$GZ_SIM_SYSTEM_PLUGIN_PATH
+export GZ_SIM_RESOURCE_PATH=$PWD/build/_deps/ardupilot_gazebo-src/models:$PWD/build/_deps/ardupilot_gazebo-src/worlds:$GZ_SIM_RESOURCE_PATH
+
+# add project to Gazebo resource path
+export GZ_SIM_RESOURCE_PATH=$PWD/models:$PWD/worlds:$GZ_SIM_RESOURCE_PATH
+
+gz sim -v4 -s -r bluerov2_1x.world &
+gz sim -v4 -g
+
+# kill all child processes
+kill -- -$$
+pkill -9 gz
