@@ -16,13 +16,13 @@ class PathNode(Node):
         self.get_logger().info("Path publishing node initialized.")
 
         #Given points here
-        dock = (0, 0.0, 0.0, 0.0)
+        dock = (5, 0.0, 0.0, 7.0)
         visit_points = [
-            (6, 4.62, 0.0, 0.0),
-            (7, 0.0, -1.0, 0.0),
-            (8, 4.62, -2.0, 0.0),
-            (9, 0.0, -3.0, 0.0),
-            (10, 4.62, -4.0, 0.0)
+            (0, 0.0, 3.5, 1.0),
+            (1, 3.5, 0.0, 1.0),
+            (2, -3.5, 0.0, 1.0),
+            (3, 0.0, -3.5, 1.0),
+            (4, 0.0, -3.5, 2.0)
         ]
 
         #Publishes visit order of points

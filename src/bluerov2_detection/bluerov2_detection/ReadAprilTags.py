@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from dt_apriltags import Detector # Must workon apriltag venv to work!!!
 
-TAG_SIZE_METERS = 0.05  # actual tag side length - MAY BE BLOWN UP FOR THIS EXPERIMENT
+TAG_SIZE_METERS = 0.10  # actual tag side length - MAY BE BLOWN UP FOR THIS EXPERIMENT
 CAMERA_PARAMS = (942.5, 942.5, 960, 540)  # fx, fy, cx, cy
 
 class AprilTagDetectorNode(Node):

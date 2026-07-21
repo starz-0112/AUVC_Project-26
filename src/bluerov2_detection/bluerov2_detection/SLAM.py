@@ -37,12 +37,13 @@ class SLAM(Node):
 
         # Tags on the route/future targets that most definitely are not moving
         self.fixed_tags = {
-            6: (4.62, 0),
-            7: (0.0, -1.0),
-            8: (4.62, -2.0),
-            9: (0.0, -3.0),
-            10: (4.62, -4.0),
-            13: (0.0, 0.0)
+
+            0: (0.0, 3.5),
+            1: (3.5, 0.0),
+            2: (-3.5, 0.0),
+            3: (0.0, -3.5),
+            4: (0.0, -3.5),
+            5: (0.0, 0.0)
         }
 
         # Pubs
@@ -68,7 +69,18 @@ class SLAM(Node):
         self.sway_command = msg.y
     
     def heading_callback(self, msg: Int16):
-        self.heading_deg = float(msg.data)
+        raw = float(msg.data)
+        if self.heading_offset is None:
+            if raw <= 90.0:
+                self.heading_offset = 90.0 - raw
+            else:
+                self.heading_offset = raw - 90.0
+            self.get_logger().info(f"SLAM heading offset initialized: {self.heading_offset:.1f}°")
+
+        if raw <= 90.0:
+            self.heading_deg = (raw + self.heading_offset) % 360
+        else:
+            self.heading_deg = (raw - self.heading_offset) % 360
     
     def depth_callback(self, msg: Float64):
         self.robot_depth = float(msg.data)

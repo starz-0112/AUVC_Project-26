@@ -13,9 +13,9 @@ class DepthPIDController(Node):
 
         # --- PID setup with a dummy initial setpoint (0m), and anti-windup ---
         self.pid = PIDController.PIDController(
-            kp=70.0,
-            ki=2.5,
-            kd=5.0,
+            kp=14.0, #70.0
+            ki=0.55, #2.5
+            kd=0.0, #5.0
             setpoint=0.0,
             dt=0.1,
         )
@@ -61,11 +61,14 @@ class DepthPIDController(Node):
 
         # Optionally clamp thrust here if needed
         # thrust = max(min(thrust, 1.0), -1.0)
+        thrust = max(min(thrust, 600.0), -600.0)
 
-        m = ManualControl(x=0.0, y=0.0, z=-thrust, r=0.0)
-        self.pub.publish(m)
+        msg = Float64()
+        msg.data = -thrust  # keep sign as-is for now, see note below
+        self.pub_depth_thrust.publish(msg)
+
         self.get_logger().info(
-            f"[PID] depth={self.current_depth:.3f} m  setpt={self.pid.setpoint:.3f} m  → thrust z={m.z:.3f}"
+            f"[PID] depth={self.current_depth:.3f} m  setpt={self.pid.setpoint:.3f} m  → thrust z={msg.data:.3f}"
         )
 
 def main(args=None):

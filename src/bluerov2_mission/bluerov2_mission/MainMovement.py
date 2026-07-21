@@ -25,8 +25,9 @@ class ROVMove(Node):
         self.create_subscription(Int16, "/rov1/heading", self.heading_cb, 10)
 
         #Publish (movement control)
-        self.pub_manual = self.create_publisher(ManualControl, '/manual_control', 10)
-        self.pub_manual = self.create_publisher(ManualControl, '/rov1/manual_control', 10)
+        # self.pub_manual = self.create_publisher(ManualControl, '/manual_control', 10)
+        # self.pub_manual = self.create_publisher(ManualControl, '/rov1/manual_control', 10)
+        self.pub_surge_sway = self.create_publisher(Float64MultiArray, '/cmd/surge_sway', 10)
 
         self.pub_depth_setpoint = self.create_publisher(Float64, '/target_depth', 10)
         self.pub_heading_setpoint = self.create_publisher(Float64, '/target_heading', 10)
@@ -53,6 +54,11 @@ class ROVMove(Node):
     def position_cb(self, msg):
         self.robot_x = msg.x
         self.robot_y = msg.y
+    
+    def publish_manual(self, x, y, r):
+        msg = Float64MultiArray()
+        msg.data = [float(x), float(y)]
+        self.pub_surge_sway.publish(msg)
     
     #Data callbacks
     def target_cb(self, msg: Float64MultiArray):
@@ -139,16 +145,6 @@ class ROVMove(Node):
             surge = self.forward_speed
 
         self.publish_manual(surge, 0.0, 0.0)
-
-    #other helpful attachments
-    # Check - this won't interfere with depth publishing, yeah?
-    def publish_manual(self, x, y, r):
-        msg = ManualControl()
-        msg.x = float(x)
-        msg.y = float(y)
-        msg.z = 0.0 #leave depth to depth PID
-        msg.r = float(r)
-        self.pub_manual.publish(msg)
 
     # def quat_to_yaw(self, q):
         # x, y, z, w = q.x, q.y, q.z, q.w

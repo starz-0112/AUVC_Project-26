@@ -13,6 +13,10 @@ class PIDController:
     def compute(self, current_depth):
         error = self.setpoint - current_depth
         self.integral += error * self.dt
+
+        # Anti-windup
+        self.integral = max(min(self.integral, 50.0), -50.0)
+
         derivative = (error - self.previous_error) / self.dt
 
         output = (self.kp * error) + (self.ki * self.integral) + (self.kd * derivative)

@@ -70,7 +70,7 @@
           <specular>0.1 0.1 0.1 1</specular>
           <pbr>
             <metal>
-              <albedo_map>model://Apriltag36_11_00000/materials/textures/tag36_11_00000.png</albedo_map>
+              <albedo_map>model://Apriltag36_11_00001/materials/textures/tag36_11_00001.png</albedo_map>
               <roughness>0.9</roughness>
               <metalness>0.0</metalness>
             </metal>

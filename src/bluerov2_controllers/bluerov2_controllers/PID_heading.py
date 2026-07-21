@@ -27,8 +27,9 @@ class HeadingLockOnly(Node):
         self._d_filt = 0.0
 
         # ── ROS Setup ──
-        self.pub = self.create_publisher(ManualControl, '/manual_control', 10)
-        self.pub = self.create_publisher(ManualControl, '/rov1/manual_control', 10)
+        # self.pub = self.create_publisher(ManualControl, '/manual_control', 10)
+        # self.pub = self.create_publisher(ManualControl, '/rov1/manual_control', 10)
+        self.pub_yaw = self.create_publisher(Float64, '/cmd/yaw', 10)
 
         self.create_subscription(Int16, '/heading', self.heading_cb, 10)
         self.create_subscription(Int16, '/rov1/heading', self.heading_cb, 10)
@@ -57,8 +58,11 @@ class HeadingLockOnly(Node):
         p = self.Kp * err
 
         # I term
+        self.i_max = 50.0  # tune to taste
+
         if abs(err) < self.int_thresh:
             self._i_term += err * self.Ki * 0.1
+            self._i_term = max(min(self._i_term, self.i_max), -self.i_max)
         i = self._i_term
 
         # D term
@@ -74,12 +78,10 @@ class HeadingLockOnly(Node):
         self._prev_err = err
         r_cmd = max(min(p + i + d, 200.0), -200.0)
 
-        # Publish yaw control only
-        mc = ManualControl()
-        mc.header.stamp = self.get_clock().now().to_msg()
-        mc.r = float(r_cmd)
-        mc.x = mc.y = mc.z = 0.0
-        self.pub.publish(mc)
+        # Publish yaw command only
+        msg = Float64()
+        msg.data = float(r_cmd)
+        self.pub_yaw.publish(msg)
 
         self.get_logger().info(
             f"[LOCK] Heading={self.current:.1f}°, Target={self.target:.1f}°, err={err:.2f} → r_cmd={r_cmd:.2f}"
